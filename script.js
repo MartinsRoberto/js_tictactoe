@@ -1,50 +1,83 @@
 let start = false
-
-let two = document.querySelector('.two')
-let cpu = document.querySelector('.cpu')
 let restart = document.querySelector('.restart')
 
-two.addEventListener('click', startGame)
-cpu.addEventListener('click', startGame)
+    two = document.querySelector('.two')
+    cpu = document.querySelector('.cpu')
 
-restart.addEventListener('click', resetGame)
+    xPoints = document.querySelector('.x-points')
+    oPoints = document.querySelector('.o-points')
 
-function startGame() {
+let xWins = 0
+let oWins = 0
+
+let opponent
+
+const boxes = document.querySelectorAll('.box')
+
+two.addEventListener('click', startGameTwo)
+cpu.addEventListener('click', startGameCpu)
+restart.addEventListener('click', reset)
+
+function startGameTwo() {
   two.style.display = 'none'
   cpu.style.display = 'none'
   restart.style.display = 'inline-block'
 
   start = true
+  opponent = 'two'
 }
 
-function resetGame() {
-  two.style.display = 'inline-block'
-  cpu.style.display = 'inline-block'
-  restart.style.display = 'none'
-}
+function startGameCpu() {
+  two.style.display = 'none'
+  cpu.style.display = 'none'
+  restart.style.display = 'inline-block'
 
-const boxes = document.querySelectorAll('.box')
+  start = true
+  opponent = 'cpu'
+}
 
 let x = true
-let o = false
 boxes.forEach((e) => {
   e.addEventListener('click', (box) => {
-    if (box.target.innerHTML == false) {
-      if (x) {
-        box.target.innerHTML = `<div class="value x">x</div`
-        x = false
+    if(start){
+      if(opponent == 'two'){
+        if (box.target.innerHTML == false) {
+          if (x) {
+            box.target.innerHTML = `<div class="value x">x</div`
+            x = false
+          }
+          else {
+            box.target.innerHTML = `<div class="value o">o</div`
+            x = true
+          }
+        }
       }
-      else {
-        box.target.innerHTML = `<div class="value o">o</div`
-
-        x = true
+      else if( opponent == 'cpu'){
+        if (box.target.innerHTML == false) {
+          box.target.innerHTML = `<div class="value x">x</div`
+          cpuPlay()
+        }
       }
+      checkWinner()
     }
-
-    checkWinner()
   })
 })
 
+function cpuPlay(){
+  const boxNumber = getRndInteger(0, 8)
+
+  if(boxes[boxNumber].childNodes.length == 0){
+    boxes[boxNumber].innerHTML = `<div class="value o">o</div`
+  }
+  else{
+    cpuPlay()
+  }
+
+}
+
+function getRndInteger(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) ) + min;
+}
 function checkWinner() {
   const b1 = document.querySelector('.box:nth-child(1)')
   const b2 = document.querySelector('.box:nth-child(2)')
@@ -167,15 +200,65 @@ function checkWinner() {
       declareWinner('o')
     }
   }
+
+
+  // DRAW
+  let counter = 0
+
+  for (let index = 0; index < boxes.length; index++) {
+    if(boxes[index].childNodes[0] != undefined){
+      counter++
+    }
+  }
+
+  if(counter == 9){
+    declareWinner('draw')
+  }
 }
 
 function declareWinner(winner){
-
-
+  const gameResult = document.querySelector('.game-result')
+  gameResult.style.display = 'block'
+  
+  if( winner == 'x' ){
+    xWins++
+    gameResult.innerHTML = "X WIN"
+    xPoints.innerHTML = `X: ${xWins}`
+  }
+  else if( winner == 'o' ){
+    oWins++
+    gameResult.innerHTML = "O WIN"
+    oPoints.innerHTML = `O: ${oWins}`
+  }
+  else if( winner == 'draw'){
+    gameResult.innerHTML = "DRAW"
+  }
 
   let boxesToRemove = document.querySelectorAll('.box div')
 
   for (let index = 0; index < boxesToRemove.length; index++) {
     boxesToRemove[index].parentNode.removeChild(boxesToRemove[index])
   }
+
+  setTimeout(() => {
+    gameResult.style.display = 'none'
+  }, 1000)
+}
+
+function reset(){
+  xWins = 0
+  oWins = 0
+
+  xPoints.innerHTML = "X:"
+  oPoints.innerHTML = "O:"
+
+  let boxesToRemove = document.querySelectorAll('.box div')
+
+  for (let index = 0; index < boxesToRemove.length; index++) {
+    boxesToRemove[index].parentNode.removeChild(boxesToRemove[index])
+  }
+
+  two.style.display = 'inline-block'
+  cpu.style.display = 'inline-block'
+  restart.style.display = 'none'
 }
