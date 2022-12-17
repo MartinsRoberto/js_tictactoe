@@ -1,11 +1,11 @@
 let start = false
 let restart = document.querySelector('.restart')
 
-    two = document.querySelector('.two')
-    cpu = document.querySelector('.cpu')
+const two = document.querySelector('.two')
+const cpu = document.querySelector('.cpu')
 
-    xPoints = document.querySelector('.x-points')
-    oPoints = document.querySelector('.o-points')
+const xPoints = document.querySelector('.x-points')
+const oPoints = document.querySelector('.o-points')
 
 let xWins = 0
 let oWins = 0
@@ -37,47 +37,62 @@ function startGameCpu() {
 }
 
 let x = true
+
+
 boxes.forEach((e) => {
   e.addEventListener('click', (box) => {
-    if(start){
-      if(opponent == 'two'){
-        if (box.target.innerHTML == false) {
-          if (x) {
-            box.target.innerHTML = `<div class="value x">x</div`
-            x = false
-          }
-          else {
-            box.target.innerHTML = `<div class="value o">o</div`
-            x = true
-          }
+    if (start && box.target.innerHTML == false) {
+      if (opponent == 'two') {
+        if (x) {
+          box.target.innerHTML = `<div class="value x">x</div`
+          x = false
+        }
+        else {
+          box.target.innerHTML = `<div class="value o">o</div`
+          x = true
         }
       }
-      else if( opponent == 'cpu'){
-        if (box.target.innerHTML == false) {
-          box.target.innerHTML = `<div class="value x">x</div`
-          cpuPlay()
-        }
+      else if (opponent == 'cpu') {
+        box.target.innerHTML = `<div class="value x">x</div`
+        cpuPlay()
       }
       checkWinner()
     }
   })
 })
 
-function cpuPlay(){
+function checkDraw() {
+  let counter = 0
+
+  for (let index = 0; index < boxes.length; index++) {
+    if (boxes[index].childNodes[0] != undefined) {
+      counter++
+    }
+  }
+
+  if (counter == 9) {
+    declareWinner('draw')
+  }
+}
+
+function cpuPlay() {
   const boxNumber = getRndInteger(0, 8)
 
-  if(boxes[boxNumber].childNodes.length == 0){
+  checkDraw()
+
+  if (boxes[boxNumber].childNodes.length == 0) {
     boxes[boxNumber].innerHTML = `<div class="value o">o</div`
   }
-  else{
+  else {
     cpuPlay()
   }
 
 }
 
 function getRndInteger(min, max) {
-  return Math.floor(Math.random() * (max - min + 1) ) + min;
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
 function checkWinner() {
   const b1 = document.querySelector('.box:nth-child(1)')
   const b2 = document.querySelector('.box:nth-child(2)')
@@ -203,34 +218,24 @@ function checkWinner() {
 
 
   // DRAW
-  let counter = 0
-
-  for (let index = 0; index < boxes.length; index++) {
-    if(boxes[index].childNodes[0] != undefined){
-      counter++
-    }
-  }
-
-  if(counter == 9){
-    declareWinner('draw')
-  }
+  checkDraw()
 }
 
-function declareWinner(winner){
+function declareWinner(winner) {
   const gameResult = document.querySelector('.game-result')
   gameResult.style.display = 'block'
-  
-  if( winner == 'x' ){
+
+  if (winner == 'x') {
     xWins++
     gameResult.innerHTML = "X WIN"
     xPoints.innerHTML = `X: ${xWins}`
   }
-  else if( winner == 'o' ){
+  else if (winner == 'o') {
     oWins++
     gameResult.innerHTML = "O WIN"
     oPoints.innerHTML = `O: ${oWins}`
   }
-  else if( winner == 'draw'){
+  else if (winner == 'draw') {
     gameResult.innerHTML = "DRAW"
   }
 
@@ -240,14 +245,22 @@ function declareWinner(winner){
     boxesToRemove[index].parentNode.removeChild(boxesToRemove[index])
   }
 
+  start = false
+
+  two.style.display = 'inline-block'
+  cpu.style.display = 'inline-block'
+  restart.style.display = 'none'
+
   setTimeout(() => {
     gameResult.style.display = 'none'
   }, 1000)
 }
 
-function reset(){
+function reset() {
   xWins = 0
   oWins = 0
+
+  start = false
 
   xPoints.innerHTML = "X:"
   oPoints.innerHTML = "O:"
